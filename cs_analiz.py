@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import os
 
-# --- HIZLANDIRMA ÖZELLİĞİ ---
+# --- HIZLANDIRMA ÖZELLİĞİ (Caching) ---
+# Bu fonksiyon veriyi bir kez okur ve hafızada tutar, siteyi hızlandırır.
 @st.cache_data
 def veriyi_yukle(dosya):
     if os.path.exists(dosya):
@@ -13,9 +14,9 @@ def veriyi_yukle(dosya):
     return None
 
 # Sayfa Ayarları
-st.set_page_config(page_title="CS Karakter Analizi v27", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="CS Karakter Analizi v23", page_icon="🎯", layout="wide")
 
-# --- HZQN LOGOSU ---
+# --- HZQN LOGOSU (SOL ALT KÖŞE - SİYAH BEYAZ YUVARLAK) ---
 st.markdown(
     """
     <style>
@@ -45,7 +46,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- KARŞILAMA MESAJI ---
+# --- KARŞILAMA MESAJI (MODAL) ---
 @st.dialog("Bilgilendirme")
 def hosgeldin_mesaji():
     st.write("### Merhaba!")
@@ -65,7 +66,7 @@ dosya_adi = "arkadaslar.csv"
 veri = veriyi_yukle(dosya_adi)
 
 if veri is None:
-    st.error(f"'{dosya_adi}' dosyası bulunamadı! Lütfen GitHub'a yüklediğinden emin ol.")
+    st.error(f"'{dosya_adi}' bulunamadı! Lütfen CSV dosyasını GitHub'a yüklediğinizden emin olun.")
 else:
     try:
         ozellikler = ['oyun_tarzi', 'en_iyi_silah', 'info', 'aim', 'fav_map', 'oyun_saati', 'ekonomi']
@@ -75,7 +76,8 @@ else:
         def selector_format(option):
             return option[1]
 
-        with st.form("final_stable_form"):
+        # --- GİRİŞ FORMU ---
+        with st.form("optimized_mega_form"):
             c1, c2, c3 = st.columns(3)
             with c1:
                 tarz = st.selectbox("Oyun Tarzı", options=[(0, "Seçiniz..."), (1,"Entry"),(2,"Lurk"),(3,"Dengeli"),(4,"Support")], format_func=selector_format, index=0)
@@ -90,4 +92,58 @@ else:
             
             submit = st.form_submit_button("ANALİZİ BAŞLAT")
 
+        # --- ANALİZ MANTIĞI ---
         if submit:
+            if tarz[0] == 0 or silah[0] == 0 or info[0] == 0 or harita[0] == 0 or saat[0] == 0 or ekonomi[0] == -1:
+                st.warning("⚠️ Lütfen tüm seçenekleri doldurun!")
+            else:
+                girdi = np.array([tarz[0], silah[0], info[0], aim, harita[0], saat[0], ekonomi[0]])
+                benzerlik_skorlari = []
+                
+                for index, row in X.iterrows():
+                    farklar = []
+                    oyuncu_verisi = row.values
+                    for i in range(len(ozellikler)):
+                        fark = abs(oyuncu_verisi[i] - girdi[i])
+                        if i in [0, 1, 2, 4, 5, 6]: 
+                            farklar.append(2.0 if fark != 0 else 0)
+                        else:
+                            farklar.append(fark / 2.5) 
+                    
+                    yuzde = 100 - (sum(farklar) * 14)
+                    benzerlik_skorlari.append(max(0, yuzde))
+
+                en_iyi_skor = max(benzerlik_skorlari)
+                tahmin_edilen_kisi = y.iloc[np.argmax(benzerlik_skorlari)]
+
+                st.divider()
+                
+                # --- ÖZEL JARGON NOTLARI ---
+                bilgi_notu = ""
+                if tahmin_edilen_kisi == "Yusuf":
+                    if tarz[0] == 1: # Entry seçildiyse
+                        bilgi_notu = "Zagreus önden giriyor, site'ı temizliyor! Tam bir Entry Yusuf profili. 🔥"
+                    else:
+                        bilgi_notu = "Zagreus bu sen misin? 🔥"
+                elif tahmin_edilen_kisi == "Huseyin":
+                    bilgi_notu = "Hüseyin, nam-ı değer HUSSOBEY bu! 👑"
+                elif tahmin_edilen_kisi == "Ibrahim":
+                    bilgi_notu = "Hafif makineli diyorsun... İbrahim olabilir mi? 🤔" if silah[0] == 7 else "Mirage'ın gediklisi İbrahim Abi sahnede."
+                elif tahmin_edilen_kisi == "Karanlik":
+                    bilgi_notu = "Ekonomiyi yine batırmışız... Karanlık buralarda. 💸"
+                else:
+                    bilgi_notu = "Profil verileri bu arkadaşımızla eşleşiyor."
+
+                # Sonuç Ekranı
+                if en_iyi_skor > 75:
+                    st.balloons()
+                    st.success(f"### Tahmin Edilen: **{tahmin_edilen_kisi}**")
+                else:
+                    st.warning(f"### En Yakın Profil: **{tahmin_edilen_kisi}**")
+                
+                st.write(f"📊 **Karakter Analiz Uyumu:** %{en_iyi_skor:.1f}")
+                st.progress(en_iyi_skor / 100)
+                st.info(f"💡 {bilgi_notu}")
+
+    except Exception as e:
+        st.error(f"Hata: {e}")
