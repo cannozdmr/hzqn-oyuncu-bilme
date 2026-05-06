@@ -3,8 +3,23 @@ import pandas as pd
 import numpy as np
 import os
 
-st.set_page_config(page_title="CS Karakter Analizi v17", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="CS Karakter Analizi v18", page_icon="🎯", layout="wide")
 
+# --- KARŞILAMA MESAJI (MODAL) ---
+@st.dialog("Bilgilendirme")
+def hosgeldin_mesaji():
+    st.write("### Merhaba!")
+    st.info("Bu tahmin yapay zekası **Floki** tarafından yapılmıştır.")
+    st.write("CS ekibimizden bir kişinin oynayış tarzını girin ve o kişiyi tahmin edeyim.")
+    if st.button("Tamam", use_container_width=True):
+        st.rerun()
+
+# Sayfa ilk açıldığında mesaj kutusunu göster
+if "mesaj_gosterildi" not in st.session_state:
+    hosgeldin_mesaji()
+    st.session_state["mesaj_gosterildi"] = True
+
+# --- ANA UYGULAMA ---
 st.title("🎯 CS Arkadaş Tahmin Paneli")
 
 dosya_adi = "arkadaslar.csv"
@@ -20,11 +35,10 @@ else:
         X = veri[ozellikler]
         y = veri['isim']
 
-        # Tüm seçimler için tek bir temizleyici fonksiyon
         def selector_format(option):
             return option[1]
 
-        with st.form("fix_final_form"):
+        with st.form("final_pro_form"):
             c1, c2, c3 = st.columns(3)
             with c1:
                 tarz = st.selectbox("Oyun Tarzı", 
@@ -35,7 +49,6 @@ else:
                                     options=[(0, "Seçiniz..."), (1,"AK-47"),(2,"AWP"),(5,"Zeus"),(6,"Baretta"),(7,"Hafif Makineli")], 
                                     format_func=selector_format, index=0)
                 
-                # Ekonomi kısmını da diğerleri gibi tuple (ikili) yaptık, karışıklık bitti
                 ekonomi = st.selectbox("Ekonomi Yönetimi", 
                                       options=[(-1, "Seçiniz..."), (1, "Yönetir"), (0, "Yönetemez")],
                                       format_func=selector_format, index=0)
@@ -57,7 +70,6 @@ else:
             submit = st.form_submit_button("ANALİZİ BAŞLAT")
 
         if submit:
-            # Kontrolü de yeni sisteme göre güncelledik
             if tarz[0] == 0 or silah[0] == 0 or info[0] == 0 or harita[0] == 0 or saat[0] == 0 or ekonomi[0] == -1:
                 st.warning("⚠️ Lütfen tüm seçenekleri doldurun!")
             else:
