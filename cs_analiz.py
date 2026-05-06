@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 
-st.set_page_config(page_title="CS Karakter Analizi v16", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="CS Karakter Analizi v17", page_icon="🎯", layout="wide")
 
 st.title("🎯 CS Arkadaş Tahmin Paneli")
 
@@ -20,47 +20,46 @@ else:
         X = veri[ozellikler]
         y = veri['isim']
 
-        def format_with_placeholder(option):
-            if option[0] == 0:
-                return "Seçiniz..."
+        # Tüm seçimler için tek bir temizleyici fonksiyon
+        def selector_format(option):
             return option[1]
 
-        with st.form("reset_form"):
+        with st.form("fix_final_form"):
             c1, c2, c3 = st.columns(3)
             with c1:
-                # index=0 ekleyerek varsayılanın "Seçiniz..." olmasını garantiye aldık
                 tarz = st.selectbox("Oyun Tarzı", 
-                                   options=[(0, "Seçiniz"), (1,"Entry"),(2,"Lurk"),(3,"Dengeli"),(4,"Support")], 
-                                   format_func=format_with_placeholder, index=0)
+                                   options=[(0, "Seçiniz..."), (1,"Entry"),(2,"Lurk"),(3,"Dengeli"),(4,"Support")], 
+                                   format_func=selector_format, index=0)
                 
                 silah = st.selectbox("Favori Silah", 
-                                    options=[(0, "Seçiniz"), (1,"AK-47"),(2,"AWP"),(5,"Zeus"),(6,"Baretta"),(7,"Hafif Makineli")], 
-                                    format_func=format_with_placeholder, index=0)
+                                    options=[(0, "Seçiniz..."), (1,"AK-47"),(2,"AWP"),(5,"Zeus"),(6,"Baretta"),(7,"Hafif Makineli")], 
+                                    format_func=selector_format, index=0)
                 
+                # Ekonomi kısmını da diğerleri gibi tuple (ikili) yaptık, karışıklık bitti
                 ekonomi = st.selectbox("Ekonomi Yönetimi", 
-                                      options=[(None, "Seçiniz"), (1, "Yönetir"), (0, "Yönetemez")],
-                                      format_func=lambda x: "Seçiniz..." if x is None else ("Yönetir" if x == 1 else "Yönetemez"),
-                                      index=0)
+                                      options=[(-1, "Seçiniz..."), (1, "Yönetir"), (0, "Yönetemez")],
+                                      format_func=selector_format, index=0)
             with c2:
                 info = st.selectbox("İletişim", 
-                                   options=[(0, "Seçiniz"), (1,"Sessiz"),(2,"Dengeli"),(3,"Çok Konuşur")], 
-                                   format_func=format_with_placeholder, index=0)
+                                   options=[(0, "Seçiniz..."), (1,"Sessiz"),(2,"Dengeli"),(3,"Çok Konuşur")], 
+                                   format_func=selector_format, index=0)
                 
                 harita = st.selectbox("En Sevdiği Harita", 
-                                     options=[(0, "Seçiniz"), (1,"Mirage"),(2,"Inferno"),(3,"Dust2")], 
-                                     format_func=format_with_placeholder, index=0)
+                                     options=[(0, "Seçiniz..."), (1,"Mirage"),(2,"Inferno"),(3,"Dust2")], 
+                                     format_func=selector_format, index=0)
             with c3:
                 saat = st.selectbox("Oyun Saati", 
-                                   options=[(0, "Seçiniz"), (2,"Orta"),(3,"Yüksek")], 
-                                   format_func=format_with_placeholder, index=0)
+                                   options=[(0, "Seçiniz..."), (2,"Orta"),(3,"Yüksek")], 
+                                   format_func=selector_format, index=0)
                 
                 aim = st.slider("Aim Yeteneği", 1.0, 10.0, 5.0, step=0.1)
             
             submit = st.form_submit_button("ANALİZİ BAŞLAT")
 
         if submit:
-            if tarz[0] == 0 or silah[0] == 0 or info[0] == 0 or harita[0] == 0 or saat[0] == 0 or ekonomi[0] is None:
-                st.warning("⚠️ Lütfen analizi başlatmadan önce tüm seçenekleri doldurun!")
+            # Kontrolü de yeni sisteme göre güncelledik
+            if tarz[0] == 0 or silah[0] == 0 or info[0] == 0 or harita[0] == 0 or saat[0] == 0 or ekonomi[0] == -1:
+                st.warning("⚠️ Lütfen tüm seçenekleri doldurun!")
             else:
                 girdi = np.array([tarz[0], silah[0], info[0], aim, harita[0], saat[0], ekonomi[0]])
                 benzerlik_skorlari = []
