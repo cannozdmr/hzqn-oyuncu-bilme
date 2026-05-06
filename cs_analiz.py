@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 
-# --- HIZLANDIRMA ÖZELLİĞİ (Caching) ---
+# --- HIZLANDIRMA ÖZELLİĞİ ---
 @st.cache_data
 def veriyi_yukle(dosya):
     if os.path.exists(dosya):
@@ -13,7 +13,7 @@ def veriyi_yukle(dosya):
     return None
 
 # Sayfa Ayarları
-st.set_page_config(page_title="CS Karakter Analizi v25", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="CS Karakter Analizi v26", page_icon="🎯", layout="wide")
 
 # --- HZQN LOGOSU ---
 st.markdown(
@@ -71,13 +71,3 @@ else:
         ozellikler = ['oyun_tarzi', 'en_iyi_silah', 'info', 'aim', 'fav_map', 'oyun_saati', 'ekonomi']
         X = veri[ozellikler]
         y = veri['isim']
-
-        def selector_format(option):
-            return option[1]
-
-        with st.form("final_stable_form"):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                tarz = st.selectbox("Oyun Tarzı", options=[(0, "Seçiniz..."), (1,"Entry"),(2,"Lurk"),(3,"Dengeli"),(4,"Support")], format_func=selector_format, index=0)
-                silah = st.selectbox("Favori Silah", options=[(0, "Seçiniz..."), (1,"AK-47"),(2,"AWP"),(5,"Zeus"),(6,"Baretta"),(7,"Hafif Makineli")], format_func=selector_format, index=0)
-                ekonomi = st.selectbox("Ekonomi Yönetimi", options=[(-1, "Seçiniz..."), (
