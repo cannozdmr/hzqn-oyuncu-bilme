@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import os
 
-st.set_page_config(page_title="CS Karakter Analizi v14", page_icon="🎯", layout="wide")
+st.set_page_config(page_title="CS Karakter Analizi v15", page_icon="🎯", layout="wide")
 
 st.title("🎯 CS Arkadaş Tahmin Paneli")
 
@@ -26,10 +26,9 @@ else:
                 return "Seçiniz..."
             return option[1]
 
-        with st.form("placeholder_form"):
+        with st.form("ekonomi_fix_form"):
             c1, c2, c3 = st.columns(3)
             with c1:
-                # Başına (0, "Seçiniz") eklendi
                 tarz = st.selectbox("Oyun Tarzı", 
                                    options=[(0, "Seçiniz"), (1,"Entry"),(2,"Lurk"),(3,"Dengeli"),(4,"Support")], 
                                    format_func=format_with_placeholder)
@@ -38,6 +37,7 @@ else:
                                     options=[(0, "Seçiniz"), (1,"AK-47"),(2,"AWP"),(5,"Zeus"),(6,"Baretta"),(7,"Hafif Makineli")], 
                                     format_func=format_with_placeholder)
                 
+                # Ekonomi kısmı düzeltildi: Seçiniz, Yönetir, Yönetemez
                 ekonomi = st.selectbox("Ekonomi Yönetimi", 
                                       options=[(None, "Seçiniz"), (1, "Yönetir"), (0, "Yönetemez")],
                                       format_func=lambda x: "Seçiniz..." if x is None else ("Yönetir" if x == 1 else "Yönetemez"))
@@ -59,7 +59,6 @@ else:
             submit = st.form_submit_button("ANALİZİ BAŞLAT")
 
         if submit:
-            # Herhangi bir seçenek "Seçiniz..." olarak kaldıysa uyar
             if tarz[0] == 0 or silah[0] == 0 or info[0] == 0 or harita[0] == 0 or saat[0] == 0 or ekonomi[0] is None:
                 st.error("Lütfen tüm seçenekleri doldurun!")
             else:
@@ -84,7 +83,7 @@ else:
 
                 st.divider()
                 
-                # Özel Notlar
+                # Jargon Notları
                 bilgi_notu = ""
                 if tahmin_edilen_kisi == "Huseyin":
                     bilgi_notu = "Hüseyin, nam-ı değer HUSSOBEY bu! 👑"
